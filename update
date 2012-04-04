@@ -1,0 +1,95 @@
+#!/bin/sh -e
+# Depends: curl, grep-aptavail
+
+PATH=/bin:/usr/bin:/sbin:/usr/sbin
+
+RETURN_UNREACHABLE=64
+RETURN_INVALID=65
+
+die () {
+	echo Error: "$@" >&2
+	exit 1
+}
+
+test_repo () {
+	release_file=$REPO/dists/$DIST/Release
+	http_status=$(curl \
+		--url $release_file \
+		--write-out '%{response_code}\n' \
+		--silent \
+		--output /dev/null) || return $RETURN_UNREACHABLE
+
+	test "$http_status" = "200" || return $RETURN_INVALID
+}
+
+check_config () {
+	eval var=\$$1
+	test -n "$var" || die "config variable $1 not set"
+}
+
+write_sources () {
+	echo "deb $REPO $DIST main" >/etc/apt/sources.list.d/update.list
+}
+
+update_apt () {
+	apt-get update -qq
+}
+
+print_outofdate_key_packages () {
+	grep-aptavail \
+		--field=Pragmatux-Key-Package \
+		--pattern=1 \
+		--exact-match \
+		--show-field=Package \
+		--no-field-names \
+	| while read package
+	do
+		v_available=$(grep-aptavail -PX $package \
+			--show-field=Version \
+			--no-field-names)
+		v_installed=$(grep-status -PX $package \
+			--show-field=Version \
+			--no-field-names || true)
+
+		if [ -n "$v_installed" ] && \
+		   dpkg --compare-versions $v_available gt $v_installed
+		then
+			echo "Package: $package"
+			echo "Installed-Version: $v_installed"
+			echo "Available-Version: $v_available"
+			echo
+		fi
+	done
+}
+
+do_check () {
+	test_repo
+	write_sources
+	update_apt
+	print_outofdate_key_packages
+}
+
+do_upgrade () {
+	apt-get dist-upgrade --allow-unauthenticated -qq
+	apt-get clean -qq
+	apt-get autoremove -qq
+}
+
+: ${UPDATE_CONFIG:=./config}
+test -f "$UPDATE_CONFIG" && . "$UPDATE_CONFIG"
+check_config REPO
+check_config DIST
+
+case "$1" in
+	check)
+		do_check
+		;;
+
+	upgrade)
+		do_upgrade
+		;;
+
+	*)
+		die "Unknown command"
+		;;
+esac

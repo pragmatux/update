@@ -1,0 +1,12 @@
+Source: update
+Section: embedded
+Priority: extra
+Maintainer: Ryan Kuester <rkuester@insymbols.com>
+Build-Depends: debhelper (>= 7.0.50~)
+Standards-Version: 3.8.4
+
+Package: update
+Architecture: any
+Depends: curl, dctrl-tools, ${misc:Depends}
+Description: A software update manager
+ A software update manager for Pragmatux embedded operating systems.
