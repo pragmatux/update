@@ -1,5 +1,4 @@
 #!/bin/sh -e
-# Depends: curl, grep-aptavail
 
 PATH=/bin:/usr/bin:/sbin:/usr/sbin
 
@@ -16,6 +15,7 @@ test_repo () {
 	http_status=$(curl \
 		--url $release_file \
 		--write-out '%{response_code}\n' \
+		--max-time 15 \
 		--silent \
 		--output /dev/null) || return $RETURN_UNREACHABLE
 
@@ -69,7 +69,7 @@ do_check () {
 	print_outofdate_key_packages
 }
 
-do_upgrade () {
+do_update () {
 	apt-get dist-upgrade --allow-unauthenticated -qq
 	apt-get clean -qq
 	apt-get autoremove -qq
@@ -85,8 +85,8 @@ case "$1" in
 		do_check
 		;;
 
-	upgrade)
-		do_upgrade
+	update-all)
+		do_update
 		;;
 
 	*)

@@ -2,11 +2,30 @@ Source: update
 Section: embedded
 Priority: extra
 Maintainer: Ryan Kuester <rkuester@insymbols.com>
-Build-Depends: debhelper (>= 7.0.50~)
+Build-Depends: debhelper (>= 7.0.50~), libpstreams-dev
 Standards-Version: 3.8.4
 
 Package: update
 Architecture: any
-Depends: curl, dctrl-tools, ${misc:Depends}
+Depends: curl, dctrl-tools, libupdate1 (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
 Description: A software update manager
  A software update manager for Pragmatux embedded operating systems.
+
+Package: libupdate1
+Architecture: any
+Depends: ${shlibs:Depends}
+Description: C bindings for software update manager
+ A software update manager for Pragmatux embedded operating systems.
+ .
+ This package contains the C language bindings.
+
+Package: libupdate1-dev
+Section: libdevel
+Architecture: any
+Depends: libupdate1 (= ${binary:Version})
+Description: C bindings for software update manager
+ A software update manager for Pragmatux embedded operating systems.
+ .
+ This package contains the C language bindings.
+ .
+ This package contains the development files.

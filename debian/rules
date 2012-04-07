@@ -11,3 +11,18 @@
 
 %:
 	dh $@ 
+
+DEB_HOST_GNU_TYPE=$(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
+DEB_BUILD_GNU_TYPE=$(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
+
+ifneq ($(DEB_HOST_GNU_TYPE),$(DEB_BUILD_GNU_TYPE))
+        CROSS=CC=$(DEB_HOST_GNU_TYPE)-gcc CXX=$(DEB_HOST_GNU_TYPE)-g++
+else
+	CROSS=
+endif
+
+override_dh_auto_build:
+	$(CROSS) redo
+
+override_dh_auto_clean:
+	redo clean
