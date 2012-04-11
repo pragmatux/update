@@ -1,53 +1,5 @@
-update (1.0~b9) unstable; urgency=low
+update (1.0) unstable; urgency=low
 
-  * 
+  * Initial release
 
- -- Ryan Kuester <rkuester@insymbols.com>  Wed, 11 Apr 2012 21:00:49 +0000
-
-update (1.0~b8) unstable; urgency=low
-
-  * 
-
- -- Ryan Kuester <rkuester@insymbols.com>  Tue, 10 Apr 2012 23:28:31 +0000
-
-update (1.0~b7) unstable; urgency=low
-
-  * 
-
- -- Ryan Kuester <rkuester@insymbols.com>  Tue, 10 Apr 2012 23:23:35 +0000
-
-update (1.0~b6) unstable; urgency=low
-
-  * 
-
- -- Ryan Kuester <rkuester@insymbols.com>  Tue, 10 Apr 2012 23:19:02 +0000
-
-update (1.0~b5) unstable; urgency=low
-
-  * 
-
- -- Ryan Kuester <rkuester@insymbols.com>  Tue, 10 Apr 2012 22:35:40 +0000
-
-update (1.0~b4) unstable; urgency=low
-
-  * 
-
- -- Ryan Kuester <rkuester@insymbols.com>  Tue, 10 Apr 2012 22:28:16 +0000
-
-update (1.0~b3) unstable; urgency=low
-
-  * 
-
- -- Ryan Kuester <rkuester@insymbols.com>  Tue, 10 Apr 2012 22:11:19 +0000
-
-update (1.0~b2) unstable; urgency=low
-
-  * 
-
- -- Ryan Kuester <rkuester@insymbols.com>  Tue, 10 Apr 2012 22:04:24 +0000
-
-update (1.0~b1) unstable; urgency=low
-
-  * Initial Release.
-
- -- Ryan Kuester <rkuester@insymbols.com>  Tue, 10 Apr 2012 21:28:48 +0000
+ -- Ryan Kuester <rkuester@insymbols.com>  Wed, 11 Apr 2012 23:02:28 +0000
