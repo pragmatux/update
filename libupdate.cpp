@@ -82,6 +82,12 @@ update_list_free(struct update_list *list)
 	if (list) delete list;
 }
 
+int
+update_list_size(struct update_list *list)
+{
+	return list->size ();
+}
+
 struct update_info *
 update_list_next (struct update_list *list, struct update_info *cursor)
 {

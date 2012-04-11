@@ -34,6 +34,12 @@ void
 update_list_free (struct update_list *);
 
 /*
+	Return the number of updates in the list.
+*/
+int
+update_list_size (struct update_list *);
+
+/*
 	Return the next update info following the cursor in a update list.  If
 	the cursor is null, return the first update in the list.  A null return
 	indicates the end of the list.

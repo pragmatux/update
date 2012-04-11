@@ -1,6 +1,6 @@
 /*
-	Example program using the C-language bindings of the Pragmatux update
-	manager.
+	Example update program using the C-language bindings of the Pragmatux
+	update manager.
 */
 
 #include <stdio.h>
@@ -15,11 +15,6 @@ print_status (int status)
 	switch (status) {
 	case 0:
 		/* pass */
-		break;
-
-	case -1:
-		msg = /* Error: */ "usage: cupdate check\n"
-		            "              cupdate update-all";
 		break;
 
 	case update_unreachable:
@@ -56,20 +51,23 @@ print_update_list (struct update_list *list)
 int main(int argc, char* argv[])
 {
 	int status = -1;
-	struct update_list *list;
+	struct update_list *list = 0;
 
-	if (argc == 1) {
-		/* pass */
-	}
-	else if (strcmp (argv[1], "check") == 0) {
-		status = update_check (&list);
-		if (status == update_okay) {
-			print_update_list (list);
-			update_list_free (list);
+	status = update_check (&list);
+
+	if (status == update_okay && update_list_size (list) > 0) {
+		print_update_list (list);
+		update_list_free (list);
+
+		char c = '\0';
+		while (c != 'y' && c != 'n') {
+			printf("Proceed with update? (y/n) ");
+			scanf("%c", &c);
 		}
-	}
-	else if (strcmp (argv[1], "update-all") == 0) {
-		status = update_update_all ();
+
+		if (c == 'y') {
+			status = update_update_all ();
+		}
 	}
 
 	print_status (status);
