@@ -46,8 +46,7 @@ print_update_list (struct update_list *list)
 	struct update_info *info = 0;
 	while ((info = update_list_next (list, info)))
 	{
-		printf ("Package %s is upgradable "
-			"from version %s to version %s\n",
+		printf ("%s is upgradable from version %s to version %s\n",
 			update_info_package (info),
 			update_info_version_installed (info),
 			update_info_version_available (info));
