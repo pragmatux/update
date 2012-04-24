@@ -1,3 +1,9 @@
+update (1.1) unstable; urgency=low
+
+  * Use system APT sources instead of source from custom configuration
+
+ -- Ryan Kuester <rkuester@insymbols.com>  Tue, 24 Apr 2012 02:35:31 +0000
+
 update (1.0.1) unstable; urgency=low
 
   * Initial release
