@@ -1,3 +1,9 @@
+update (1.2) unstable; urgency=low
+
+  * Split into two stages, allowing update to be updated
+
+ -- Ryan Kuester <rkuester@insymbols.com>  Tue, 24 Apr 2012 19:53:00 +0000
+
 update (1.1) unstable; urgency=low
 
   * Use system APT sources instead of source from custom configuration
