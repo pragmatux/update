@@ -10,8 +10,17 @@ die () {
 	exit 1
 }
 
-test_repo () {
-	release_file=$REPO/dists/$DIST/Release
+get_first_archive () {
+	cat /etc/apt/sources.list /etc/apt/sources.list.d/* 2>/dev/null \
+	| grep '^deb\W\+http' \
+	| head -n 1 \
+	| { read TAG ARCHIVE DIST REST; echo $ARCHIVE $DIST; }
+}
+
+test_archive () {
+	ARCHIVE=$1
+	DIST=$2
+	release_file=$ARCHIVE/dists/$DIST/Release
 	http_status=$(curl \
 		--url $release_file \
 		--write-out '%{response_code}\n' \
@@ -20,15 +29,6 @@ test_repo () {
 		--output /dev/null) || return $RETURN_UNREACHABLE
 
 	test "$http_status" = "200" || return $RETURN_INVALID
-}
-
-check_config () {
-	eval var=\$$1
-	test -n "$var" || die "config variable $1 not set"
-}
-
-write_sources () {
-	echo "deb $REPO $DIST main" >/etc/apt/sources.list.d/update.list
 }
 
 update_apt () {
@@ -63,8 +63,7 @@ print_outofdate_key_packages () {
 }
 
 do_check () {
-	test_repo
-	write_sources
+	test_archive $(get_first_archive)
 	update_apt
 	print_outofdate_key_packages
 }
@@ -74,11 +73,6 @@ do_update () {
 	apt-get clean -qq
 	apt-get autoremove -qq
 }
-
-: ${UPDATE_CONFIG:=/etc/update/config}
-test -f "$UPDATE_CONFIG" && . "$UPDATE_CONFIG"
-check_config UPDATE_REPO
-check_config UPDATE_DIST
 
 case "$1" in
 	check)
