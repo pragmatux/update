@@ -1,4 +1,4 @@
-update (1.2) unstable; urgency=low
+update (1.2.1) unstable; urgency=low
 
   * Split into two stages, allowing update to be updated
 
