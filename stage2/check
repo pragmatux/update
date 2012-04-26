@@ -1,0 +1,99 @@
+#!/bin/sh -e
+
+PATH=/bin:/usr/bin:/sbin:/usr/sbin
+
+RETURN_UNREACHABLE=64
+RETURN_INVALID=65
+
+test_http_archive () {
+	ARCHIVE=$2
+	DIST=$3
+	release_file=$ARCHIVE/dists/$DIST/Release
+	http_status=$(curl \
+		--url $release_file \
+		--write-out '%{response_code}\n' \
+		--max-time 15 \
+		--silent \
+		--output /dev/null) || return $RETURN_UNREACHABLE
+
+	test "$http_status" = "200" || return $RETURN_INVALID
+}
+
+test_file_archive () {
+	ARCHIVE=$2
+	DIST=$3
+	release_file=$ARCHIVE/dists/$DIST/Release
+	test -r ${release_file#file://} || return $RETURN_INVALID
+}
+
+report_access_failure () {
+	CODE=$1
+	ARCHIVE=$3
+	DIST=$4
+
+	case $CODE in
+		$RETURN_UNREACHABLE)
+			echo "Unreachable archive: $ARCHIVE dist: $DIST" >&2
+			;;
+		$RETURN_INVALID)
+			echo "Invalid archive: $ARCHIVE dist: $DIST" >&2
+			;;
+		*)
+			echo "Failure $CODE with archive: $ARCHIVE dist: $DIST" >&2
+			;;
+	esac
+}
+
+test_archives () {
+	cat /etc/apt/sources.list /etc/apt/sources.list.d/*.list 2>/dev/null \
+	| grep '^deb\W\+' \
+	| { while read LINE
+	do
+		if (echo $LINE | grep -q '^deb\W\+http:'); then
+			test_fn=test_http_archive
+		elif (echo $LINE | grep -q '^deb\W\+file:'); then
+			test_fn=test_file_archive
+		else
+			set -- $LINE
+			echo "Unknown archive protocol: $2" >&2
+			ERROR=1
+		fi
+
+		$test_fn $LINE || {
+			ERROR=$?
+			report_access_failure $ERROR $LINE
+		}
+	done
+	exit $ERROR; }
+}
+
+print_outofdate_key_packages () {
+	grep-aptavail \
+		--field=Pragmatux-Key-Package \
+		--pattern=1 \
+		--exact-match \
+		--show-field=Package \
+		--no-field-names \
+	| while read package
+	do
+		v_available=$(grep-aptavail -PX $package \
+			--show-field=Version \
+			--no-field-names)
+		v_installed=$(grep-status -PX $package \
+			--show-field=Version \
+			--no-field-names || true)
+
+		if [ -n "$v_installed" ] && \
+		   dpkg --compare-versions $v_available gt $v_installed
+		then
+			echo "Package: $package"
+			echo "Installed-Version: $v_installed"
+			echo "Available-Version: $v_available"
+			echo
+		fi
+	done
+}
+
+test_archives >&2 || exit $?
+apt-get -q update >&2
+print_outofdate_key_packages

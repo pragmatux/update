@@ -1,8 +1,8 @@
-update (1.2.1) unstable; urgency=low
+update (1.2.2~b2) unstable; urgency=low
 
   * Split into two stages, allowing update to be updated
 
- -- Ryan Kuester <rkuester@insymbols.com>  Tue, 24 Apr 2012 19:53:00 +0000
+ -- Ryan Kuester <rkuester@insymbols.com>  Thu, 26 Apr 2012 05:11:07 +0000
 
 update (1.1) unstable; urgency=low
 

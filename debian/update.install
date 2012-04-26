@@ -1,2 +1,2 @@
 update cupdate /usr/sbin
-stage2.sh /usr/lib/update
+stage2/check stage2/update-all /usr/lib/update/stage2/base

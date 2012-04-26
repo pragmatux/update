@@ -1,88 +1,49 @@
 #!/bin/sh -e
+#
+# The first stage update program.  The first stage attempts to update the
+# second stage, and then dispatches the given command to it.
+#
 
-PATH=/bin:/usr/bin:/sbin:/usr/sbin
-
-RETURN_UNREACHABLE=64
-RETURN_INVALID=65
-
-die () {
-	echo Error: "$@" >&2
+PATH=/bin:/usr/bin:/sbin:/usr/sbin:$PATH
+test -n "$1" || {
+	echo "usage: update COMMAND" >&2
 	exit 1
 }
 
-get_first_archive () {
-	cat /etc/apt/sources.list /etc/apt/sources.list.d/* 2>/dev/null \
-	| grep '^deb\W\+http' \
-	| head -n 1 \
-	| { read TAG ARCHIVE DIST REST; echo $ARCHIVE $DIST; }
-}
-
-test_archive () {
-	ARCHIVE=$1
-	DIST=$2
-	release_file=$ARCHIVE/dists/$DIST/Release
-	http_status=$(curl \
-		--url $release_file \
-		--write-out '%{response_code}\n' \
-		--max-time 15 \
-		--silent \
-		--output /dev/null) || return $RETURN_UNREACHABLE
-
-	test "$http_status" = "200" || return $RETURN_INVALID
-}
-
-update_apt () {
-	apt-get update -qq
-}
-
-print_outofdate_key_packages () {
-	grep-aptavail \
+get_key_package () {
+	key=$(grep-aptavail \
 		--field=Pragmatux-Key-Package \
 		--pattern=1 \
 		--exact-match \
 		--show-field=Package \
 		--no-field-names \
-	| while read package
-	do
-		v_available=$(grep-aptavail -PX $package \
-			--show-field=Version \
-			--no-field-names)
-		v_installed=$(grep-status -PX $package \
-			--show-field=Version \
-			--no-field-names || true)
-
-		if [ -n "$v_installed" ] && \
-		   dpkg --compare-versions $v_available gt $v_installed
-		then
-			echo "Package: $package"
-			echo "Installed-Version: $v_installed"
-			echo "Available-Version: $v_available"
-			echo
-		fi
-	done
+	| head -1)
+	test -n "$key" && echo "$key"
 }
 
-do_check () {
-	test_archive $(get_first_archive)
-	update_apt
-	print_outofdate_key_packages
+dispatch () {
+	command=$1
+	shift
+	base=/usr/lib/update/stage2/base/$command
+	override=/usr/lib/update/stage2/override/$command
+
+	if test -x $override; then
+		exec $override "$@"
+	elif test -x $base; then
+		exec $base "$@"
+	else
+		echo "Command not found: $command" >&2
+		return 1
+	fi
 }
 
-do_update () {
-	apt-get install --allow-unauthenticated -qq update || true
-	exec /usr/lib/update/stage2.sh
-}
+echo "Updating stage 2..." >&2
+apt-get -q update >&2 || true
+apt-get -q -y --allow-unauthenticated install update >&2 || true
+if key=$(get_key_package); then
+	apt-get -q -y --allow-unauthenticated install update-$key >&2 || true
+else
+	echo "Warning: no key package found" >&2
+fi
 
-case "$1" in
-	check)
-		do_check
-		;;
-
-	update-all)
-		do_update
-		;;
-
-	*)
-		die "Unknown command"
-		;;
-esac
+dispatch "$@"
