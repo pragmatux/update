@@ -38,10 +38,13 @@ dispatch () {
 }
 
 echo "Updating stage 2..." >&2
-apt-get -q update >&2 || true
-apt-get -q -y --allow-unauthenticated install update >&2 || true
+unset config
+test -n "$UPDATE_APTCONFIG" && config="-o Dir::Etc=$UPDATE_APTCONFIG"
+apt-get -q $config update >&2 || true
+apt-get -q $config -y --allow-unauthenticated install update >&2 || true
 if key=$(get_key_package); then
-	apt-get -q -y --allow-unauthenticated install update-$key >&2 || true
+	apt-get -q $config -y --allow-unauthenticated \
+		install update-$key >&2 || true
 else
 	echo "Warning: no key package found" >&2
 fi

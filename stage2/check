@@ -95,5 +95,7 @@ print_outofdate_key_packages () {
 }
 
 test_archives >&2 || exit $?
-apt-get -q update >&2
+unset config
+test -n "$UPDATE_APTCONFIG" && config="-o Dir::Etc=$UPDATE_APTCONFIG"
+apt-get -q $config update >&2
 print_outofdate_key_packages

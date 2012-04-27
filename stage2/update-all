@@ -2,6 +2,8 @@
 
 PATH=/bin:/usr/bin:/sbin:/usr/sbin:$PATH
 
-apt-get -q -y --allow-unauthenticated dist-upgrade
-apt-get -q clean
-apt-get -q autoremove
+unset config
+test -n "$UPDATE_APTCONFIG" && config="-o Dir::Etc=$UPDATE_APTCONFIG"
+apt-get -q $config -y --allow-unauthenticated dist-upgrade
+apt-get -q $config clean
+apt-get -q $config autoremove
