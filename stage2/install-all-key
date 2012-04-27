@@ -19,7 +19,7 @@ print_uninstalled_key_packages () {
 			--show-field=Version \
 			--no-field-names || true)
 
-		if [ -n "$v_installed" ]
+		if [ -z "$v_installed" ]
 		then
 			echo -n "$package "
 		fi
