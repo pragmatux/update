@@ -1,0 +1,31 @@
+#!/bin/sh -e
+
+PATH=/bin:/usr/bin:/sbin:/usr/sbin
+
+print_uninstalled_key_packages () {
+	grep-aptavail \
+		--field=Pragmatux-Key-Package \
+		--pattern=1 \
+		--exact-match \
+		--show-field=Package \
+		--no-field-names \
+	| while read package
+	do
+		v_installed=$(grep-status -PX $package \
+			--show-field=Version \
+			--no-field-names || true)
+
+		if [ -n "$v_installed" ]
+		then
+			echo -n "$package "
+		fi
+	done
+}
+
+unset config
+test -n "$UPDATE_APTCONFIG" && config="-o Dir::Etc=$UPDATE_APTCONFIG"
+apt-get -q $config update >&2
+to_install="$(print_uninstalled_key_packages)"
+test -n "$to_install" || exit 0
+apt-get -q $config -y --allow-unauthenticated install $to_install
+apt-get -q $config clean
