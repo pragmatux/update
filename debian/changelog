@@ -1,4 +1,4 @@
-update (1.4.1) unstable; urgency=low
+update (1.4.2) unstable; urgency=low
 
   * Add install-all-key (packages) command
 
