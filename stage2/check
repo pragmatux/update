@@ -45,7 +45,8 @@ report_access_failure () {
 }
 
 test_archives () {
-	cat /etc/apt/sources.list /etc/apt/sources.list.d/*.list 2>/dev/null \
+	cat $UPDATE_APTCONFIG/sources.list \
+	    $UPDATE_APTCONFIG/sources.list.d/*.list 2>/dev/null \
 	| grep '^deb\W\+' \
 	| { while read LINE
 	do
@@ -67,8 +68,12 @@ test_archives () {
 	exit $ERROR; }
 }
 
+grep_aptavail_configured () {
+	apt-cache $UPDATE_APTCONFIG_ARG dumpavail | grep-dctrl "$@"
+}
+
 print_outofdate_key_packages () {
-	grep-aptavail \
+	grep_aptavail_configured \
 		--field=Pragmatux-Key-Package \
 		--pattern=1 \
 		--exact-match \
@@ -76,7 +81,7 @@ print_outofdate_key_packages () {
 		--no-field-names \
 	| while read package
 	do
-		v_available=$(grep-aptavail -PX $package \
+		v_available=$(grep_aptavail_configured -PX $package \
 			--show-field=Version \
 			--no-field-names)
 		v_installed=$(grep-status -PX $package \
@@ -95,7 +100,5 @@ print_outofdate_key_packages () {
 }
 
 test_archives >&2 || exit $?
-unset config
-test -n "$UPDATE_APTCONFIG" && config="-o Dir::Etc=$UPDATE_APTCONFIG"
-apt-get -q $config update >&2
+apt-get -q $UPDATE_APTCONFIG_ARG update >&2
 print_outofdate_key_packages

@@ -10,8 +10,16 @@ test -n "$1" || {
 	exit 1
 }
 
+: ${UPDATE_APTCONFIG:=/etc/apt}
+export UPDATE_APTCONFIG
+export UPDATE_APTCONFIG_ARG="-o Dir::Etc=$UPDATE_APTCONFIG"
+
+grep_aptavail_configured () {
+	apt-cache $UPDATE_APTCONFIG_ARG dumpavail | grep-dctrl "$@"
+}
+
 get_key_package () {
-	key=$(grep-aptavail \
+	key=$(apt-cache $UPDATE_APTCONFIG_ARG dumpavail | grep-dctrl \
 		--field=Pragmatux-Key-Package \
 		--pattern=1 \
 		--exact-match \
@@ -38,12 +46,10 @@ dispatch () {
 }
 
 echo "Updating stage 2..." >&2
-unset config
-test -n "$UPDATE_APTCONFIG" && config="-o Dir::Etc=$UPDATE_APTCONFIG"
-apt-get -q $config update >&2 || true
-apt-get -q $config -y --allow-unauthenticated install update >&2 || true
+apt-get -q $UPDATE_APTCONFIG_ARG update >&2 || true
+apt-get -q $UPDATE_APTCONFIG_ARG -y --allow-unauthenticated install update >&2 || true
 if key=$(get_key_package); then
-	apt-get -q $config -y --allow-unauthenticated \
+	apt-get -q $UPDATE_APTCONFIG_ARG -y --allow-unauthenticated \
 		install update-$key >&2 || true
 else
 	echo "Warning: no key package found" >&2

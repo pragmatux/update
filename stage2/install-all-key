@@ -2,8 +2,12 @@
 
 PATH=/bin:/usr/bin:/sbin:/usr/sbin
 
+grep_aptavail_configured () {
+	apt-cache $UPDATE_APTCONFIG_ARG dumpavail | grep-dctrl "$@"
+}
+
 print_uninstalled_key_packages () {
-	grep-aptavail \
+	grep_aptavail_configured \
 		--field=Pragmatux-Key-Package \
 		--pattern=1 \
 		--exact-match \
@@ -23,9 +27,7 @@ print_uninstalled_key_packages () {
 }
 
 unset config
-test -n "$UPDATE_APTCONFIG" && config="-o Dir::Etc=$UPDATE_APTCONFIG"
-apt-get -q $config update >&2
 to_install="$(print_uninstalled_key_packages)"
 test -n "$to_install" || exit 0
-apt-get -q $config -y --allow-unauthenticated install $to_install
-apt-get -q $config clean
+apt-get -q $UPDATE_APTCONFIG_ARG -y --allow-unauthenticated install $to_install
+apt-get -q $UPDATE_APTCONFIG_ARG clean
