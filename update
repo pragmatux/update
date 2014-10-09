@@ -14,10 +14,6 @@ test -n "$1" || {
 export UPDATE_APTCONFIG
 export UPDATE_APTCONFIG_ARG="-o Dir::Etc=$UPDATE_APTCONFIG"
 
-grep_aptavail_configured () {
-	apt-cache $UPDATE_APTCONFIG_ARG dumpavail | grep-dctrl "$@"
-}
-
 get_key_package () {
 	key=$(apt-cache $UPDATE_APTCONFIG_ARG dumpavail | grep-dctrl \
 		--field=Pragmatux-Key-Package \
