@@ -55,9 +55,9 @@ test_archives () {
 		elif (echo $LINE | grep -q '^deb\W\+file:'); then
 			test_fn=test_file_archive
 		else
-			set -- $LINE
-			echo "Unknown archive protocol: $2" >&2
-			ERROR=1
+			# Don't fail unknown protocols. Pass and let apt-get
+			# error if need be.
+			test_fn=true
 		fi
 
 		$test_fn $LINE || {
