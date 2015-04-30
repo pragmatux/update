@@ -1,2 +1,2 @@
-update cupdate /usr/sbin
+update update-source cupdate /usr/sbin
 stage2/* /usr/lib/update/stage2/base

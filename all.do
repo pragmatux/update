@@ -1,1 +1,1 @@
-redo-ifchange libupdate.so cupdate
+redo-ifchange libupdate.so cupdate update-source
